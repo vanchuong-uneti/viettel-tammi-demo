@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Viettel Tammi - Demo Giao Diện</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .card { width: 380px; background: #ffffff; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); padding: 24px; }
+    .header { text-align: center; color: #ee0033; font-size: 22px; font-weight: bold; margin-bottom: 20px; }
+    .box { border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .balance-box { background: #fff1f2; border: 1px solid #ffe4e6; }
+    .balance-title { font-size: 13px; color: #666; margin-bottom: 4px; }
+    .balance-val { font-size: 24px; font-weight: bold; color: #ee0033; }
+    .data-box { background: #f0f9ff; border: 1px solid #e0f2fe; }
+    .progress-bg { height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; margin-top: 10px; }
+    .progress-fill { height: 100%; background: #0284c7; width: 0%; transition: width 0.4s ease; }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
+    .btn-submit { background: #ee0033; color: white; }
+    .btn-submit:hover { background: #cc002c; }
+    .btn-points { background: #eab308; color: white; }
+    .btn-points:hover { background: #ca8a04; }
+    .btn-refresh { background: #f1f5f9; color: #475569; }
+    .btn-refresh:hover { background: #e2e8f0; }
+    .status-msg { font-size: 13px; text-align: center; margin-top: 10px; font-weight: 600; min-height: 20px; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">Viettel Tammi</div>
+
+  <!-- 1. Khung Tài khoản gốc -->
+  <div class="box balance-box">
+    <div class="balance-title">Số thuê bao: <b id="phone" style="color: #111;">-</b></div>
+    <div class="balance-title">Số dư tài khoản gốc:</div>
+    <div class="balance-val" id="balance">0 VNĐ</div>
+  </div>
+
+  <!-- 2. Khung Viettel++ -->
+  <div class="box" style="background: #fefce8; border: 1px solid #fef08a;">
+    <div class="balance-title">Điểm tích lũy Viettel++:</div>
+    <div style="font-size: 20px; font-weight: bold; color: #ca8a04; margin-bottom: 8px;" id="points">0 điểm</div>
+    <button class="btn btn-points" style="margin-bottom: 0;" onclick="redeemPoints()">
+      Đổi 1.000 điểm ➔ +10.000 VNĐ
+    </button>
+  </div>
+
+  <!-- 3. Khung Data gói cước -->
+  <div class="box data-box">
+    <div style="font-weight: bold; color: #0369a1; margin-bottom: 6px;" id="pkg-name">Gói cước -</div>
+    <div style="font-size: 13px; color: #334155;">Data còn lại: <b id="pkg-data">0 / 0 GB</b></div>
+    <div class="progress-bg">
+      <div class="progress-fill" id="data-progress"></div>
+    </div>
+  </div>
+
+  <!-- 4. Nút Thao tác -->
+  <button class="btn btn-submit" onclick="subscribe('SD135')">Đăng ký gói SD135 (135.000đ)</button>
+  <button class="btn btn-refresh" onclick="fetchDashboard()">Làm mới dữ liệu</button>
+
+  <div class="status-msg" id="msg"></div>
+</div>
+
+<script>
+  // Tải thông tin tài khoản từ API Backend
+  async function fetchDashboard() {
+    try {
+      const res = await fetch('/api/v1/telecom/dashboard');
+      const result = await res.json();
+      if(result.code === 200) {
+        const d = result.data;
+        document.getElementById('phone').innerText = d.phone_number;
+        document.getElementById('balance').innerText = d.main_balance.toLocaleString('vi-VN') + ' VNĐ';
+        document.getElementById('points').innerText = (d.viettel_plus_points || 0).toLocaleString('vi-VN') + ' điểm';
+        
+        const pkg = d.active_package;
+        document.getElementById('pkg-name').innerText = pkg.package_name;
+        
+        const remainingGB = (pkg.remaining_data_mb / 1024).toFixed(1);
+        const totalGB = (pkg.total_data_mb / 1024).toFixed(1);
+        document.getElementById('pkg-data').innerText = `${remainingGB} GB / ${totalGB} GB`;
+        
+        const percent = Math.min((pkg.remaining_data_mb / pkg.total_data_mb) * 100, 100);
+        document.getElementById('data-progress').style.width = percent + '%';
+      }
+    } catch (e) {
+      console.error("Lỗi khi tải dữ liệu:", e);
+    }
+  }
+
+  // Gọi API đăng ký gói cước
+  async function subscribe(packageId) {
+    const msgEl = document.getElementById('msg');
+    msgEl.innerText = 'Đang xử lý giao dịch...';
+    msgEl.style.color = '#666';
+
+    try {
+      const res = await fetch('/api/v1/packages/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ package_id: packageId })
+      });
+      const result = await res.json();
+
+      msgEl.innerText = result.message;
+      if(res.status === 200) {
+        msgEl.style.color = '#16a34a';
+        fetchDashboard();
+      } else {
+        msgEl.style.color = '#dc2626';
+      }
+    } catch (e) {
+      msgEl.innerText = 'Lỗi kết nối Server!';
+      msgEl.style.color = '#dc2626';
+    }
+  }
+
+  // Gọi API Đổi điểm Viettel++
+  async function redeemPoints() {
+    const msgEl = document.getElementById('msg');
+    msgEl.innerText = 'Đang xử lý đổi điểm...';
+    msgEl.style.color = '#666';
+
+    try {
+      const res = await fetch('/api/v1/loyalty/redeem', {
+        method: 'POST'
+      });
+      const result = await res.json();
+
+      msgEl.innerText = result.message;
+      if(res.status === 200) {
+        msgEl.style.color = '#16a34a';
+        fetchDashboard();
+      } else {
+        msgEl.style.color = '#dc2626';
+      }
+    } catch (e) {
+      msgEl.innerText = 'Lỗi kết nối Server!';
+      msgEl.style.color = '#dc2626';
+    }
+  }
+
+  // Tự động lấy dữ liệu khi load trang
+  fetchDashboard();
+</script>
+
+</body>
+</html>
