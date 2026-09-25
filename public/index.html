@@ -4,12 +4,155 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Viettel Tammi - Demo Giao Diện</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<!-- Khai báo tính năng App PWA -->
+  
+  <!-- 1. KHAI BÁO PWA (ĐÃ ĐẶT ĐÚNG VỊ TRÍ TRONG HEAD) -->
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#ee0033">
   <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Viettel_logo_2021.svg/512px-Viettel_logo_2021.svg.png">
+
+  <!-- 2. CSS GIAO DIỆN VIETTEL -->
+  <style>
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    }
+
+    :root {
+      --viettel-red: #ee0033;
+      --bg-light: #f0f2f5;
+      --text-dark: #222222;
+    }
+
+    body.viettel-theme {
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+    }
+
+    /* Header Viettel */
+    .viettel-header {
+      background-color: var(--viettel-red);
+      color: #ffffff;
+      padding: 15px 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .header-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-text {
+      font-size: 32px;
+      font-weight: bold;
+      letter-spacing: -1px;
+    }
+
+    .tagline {
+      font-size: 12px;
+      display: block;
+      font-style: italic;
+      opacity: 0.9;
+    }
+
+    .badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+    }
+
+    /* Bố cục chính */
+    .main-wrapper {
+      max-width: 1000px;
+      margin: 30px auto;
+      display: flex;
+      gap: 24px;
+      padding: 0 15px;
+      align-items: flex-start;
+    }
+
+    .viettel-sidebar {
+      flex: 1;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 16px;
+      border-top: 4px solid var(--viettel-red);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .viettel-sidebar h3 {
+      color: var(--viettel-red);
+      margin-top: 0;
+      font-size: 16px;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+
+    .timeline {
+      list-style: none;
+    }
+
+    .timeline li {
+      margin-bottom: 14px;
+      font-size: 13px;
+      line-height: 1.4;
+      padding-left: 10px;
+      border-left: 2px solid var(--viettel-red);
+    }
+
+    .app-content {
+      flex: 1.2;
+    }
+
+    /* Card App Tammi */
+    .card { 
+      width: 100%; 
+      background: #ffffff; 
+      border-radius: 20px; 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08); 
+      padding: 24px; 
+    }
+
+    .header-app { text-align: center; color: #ee0033; font-size: 22px; font-weight: bold; margin-bottom: 20px; }
+    .box { border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .balance-box { background: #fff1f2; border: 1px solid #ffe4e6; }
+    .balance-title { font-size: 13px; color: #666; margin-bottom: 4px; }
+    .balance-val { font-size: 24px; font-weight: bold; color: #ee0033; }
+    .data-box { background: #f0f9ff; border: 1px solid #e0f2fe; }
+    .progress-bg { height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; margin-top: 10px; }
+    .progress-fill { height: 100%; background: #0284c7; width: 0%; transition: width 0.4s ease; }
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
+    .btn-submit { background: #ee0033; color: white; }
+    .btn-submit:hover { background: #cc002c; }
+    .btn-points { background: #eab308; color: white; }
+    .btn-points:hover { background: #ca8a04; }
+    .btn-refresh { background: #f1f5f9; color: #475569; }
+    .btn-refresh:hover { background: #e2e8f0; }
+    .status-msg { font-size: 13px; text-align: center; margin-top: 10px; font-weight: 600; min-height: 20px; }
+
+    .viettel-footer {
+      text-align: center;
+      padding: 20px;
+      background: #e9ecef;
+      color: #666;
+      font-size: 13px;
+      margin-top: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .main-wrapper {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
 <body class="viettel-theme">
 
   <!-- 1. Header Thương hiệu Viettel -->
@@ -43,7 +186,7 @@
     <!-- Cột bên phải: ỨNG DỤNG TAMMI CỦA BẠN -->
     <main class="app-content">
       <div class="card">
-        <div class="header">Viettel Tammi</div>
+        <div class="header-app">Viettel Tammi</div>
 
         <!-- 1. Khung Tài khoản gốc -->
         <div class="box balance-box">
@@ -85,9 +228,14 @@
     <p>© 2026 Viettel Tammi Demo | Tập đoàn Công nghiệp - Viễn thông Quân đội</p>
   </footer>
 
-  <!-- 4. SCRIPT XỬ LÝ DỮ LIỆU -->
+  <!-- 4. SCRIPT XỬ LÝ DỮ LIỆU (ĐÃ BỔ SUNG THÔNG BÁO) -->
   <script>
+    // Hàm Tải & Làm mới thông tin tài khoản
     async function fetchDashboard() {
+      const msgEl = document.getElementById('msg');
+      msgEl.innerText = 'Đang tải dữ liệu mới nhất...';
+      msgEl.style.color = '#0284c7';
+
       try {
         const res = await fetch('/api/v1/telecom/dashboard');
         const result = await res.json();
@@ -106,12 +254,23 @@
           
           const percent = Math.min((pkg.remaining_data_mb / pkg.total_data_mb) * 100, 100);
           document.getElementById('data-progress').style.width = percent + '%';
+
+          // Hiển thị thông báo thành công
+          msgEl.innerText = 'Đã làm mới dữ liệu thành công!';
+          msgEl.style.color = '#16a34a';
+          setTimeout(() => { msgEl.innerText = ''; }, 3000); // Tự xóa thông báo sau 3s
+        } else {
+          msgEl.innerText = 'Lỗi lấy dữ liệu từ Server!';
+          msgEl.style.color = '#dc2626';
         }
       } catch (e) {
         console.error("Lỗi khi tải dữ liệu:", e);
+        msgEl.innerText = 'Lỗi kết nối Server!';
+        msgEl.style.color = '#dc2626';
       }
     }
 
+    // Đăng ký gói cước
     async function subscribe(packageId) {
       const msgEl = document.getElementById('msg');
       msgEl.innerText = 'Đang xử lý giao dịch...';
@@ -138,6 +297,7 @@
       }
     }
 
+    // Đổi điểm Viettel++
     async function redeemPoints() {
       const msgEl = document.getElementById('msg');
       msgEl.innerText = 'Đang xử lý đổi điểm...';
@@ -162,6 +322,7 @@
       }
     }
 
+    // Tự động lấy dữ liệu khi tải trang
     fetchDashboard();
   </script>
 
